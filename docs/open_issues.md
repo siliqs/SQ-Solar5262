@@ -16,7 +16,7 @@
 ## 追蹤表模板
 | 類別 | 項目 | 為何重要 | GitHub Issue | Owner | 目標日期 | 狀態 | 備註 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-{{INITIAL_REVIEW_OPEN_ISSUES_ROW}}
+| blocking | 專案主資訊完整性檢查 | 確認專案目標、範圍、owner、里程碑與必要 unknowns 是否缺漏 | [#1](https://github.com/livinghuang/26_meshtastic_on_ht_n5262m/issues/1) | AI agents | 2026-05-15 | open | 自動建立的第一張 bootstrap review issue |
 | decision-needed |  |  |  |  |  | open |  |
 | follow-up |  |  |  |  |  | open |  |
 | correction |  |  |  |  |  | open |  |

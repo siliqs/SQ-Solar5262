@@ -78,7 +78,7 @@
 
 | 項目 | 為何必要 | 當前狀態 | GitHub Issue | Owner | 目標日期 |
 | --- | --- | --- | --- | --- | --- |
-{{INITIAL_REVIEW_BOOTSTRAP_ROW}}
+| 專案主資訊完整性檢查 | 確認專案初始化資訊是否缺漏 | open | [#1](https://github.com/livinghuang/26_meshtastic_on_ht_n5262m/issues/1) | AI agents | 2026-05-15 |
 |  |  |  |  |  |  |
 
 ## 8. 里程碑
