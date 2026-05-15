@@ -8,3 +8,11 @@ dist/
 build/
 coverage/
 
+# Upstream meshtastic/firmware checkout (cloned, symlinked variant lives in src/)
+external/meshtastic-firmware/
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
