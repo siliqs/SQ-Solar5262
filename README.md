@@ -77,6 +77,30 @@ Carrier 板（silic_solar_panel_5262M v1）的真實接腳，全部在 25_HT5262
 
 → [pinout_comparison.md](pinout_comparison.md) 還有完整周邊（TFT / GNSS / RS485 / DWM3000）的 pin 對照給未來啟用周邊用。
 
+## Install / 燒法（兩種 UF2，看你要哪種）
+
+Release 頁面有**兩支 UF2**，順序很重要：
+
+| File | 作用 | 何時用 |
+|---|---|---|
+| **`Meshtastic_nRF52_factory_erase_v3_S140_6.1.0.uf2`** | 抹掉 app slot + bond storage + Meshtastic prefs，但 **保留** Adafruit BL + S140 SoftDevice | 第一次燒、BLE bond 卡住 retry 不停、想完全 factory reset 時 |
+| **`firmware-ht_n5262m-*.uf2`** | 安裝/更新 app（含我們的 ht_n5262m variant），保留 bond + prefs | 正常 update；接續在 factory-erase 後面 |
+
+### 正常 update（app-only，保留 bond/prefs）
+雙擊 RESET 進 UF2 mode → `cp firmware-ht_n5262m-*.uf2 /Volumes/HT-n5262/CURRENT.UF2` → 重啟。
+
+### 完整 factory reset（BLE 卡住時必走）
+這個流程清掉所有 NVM 包含 BLE bond key，是 Meshtastic 官方推薦的「too many retries」修復路徑：
+
+1. 雙擊 RESET 進 UF2 mode（或 `./scripts/flash_meshtastic_dfu.sh` 的 DAPLink path 進 UF2）
+2. `cp Meshtastic_nRF52_factory_erase_v3_S140_6.1.0.uf2 /Volumes/HT-n5262/CURRENT.UF2`
+3. 等 chip reboot 後 **再進一次 UF2 mode**（factory-erase 結束後預設停在 BL）
+4. `cp firmware-ht_n5262m-*.uf2 /Volumes/HT-n5262/CURRENT.UF2`
+5. 手機端：藍牙設定裡 Forget 舊的 HT-n5262 / Meshtastic 配對
+6. 重新配對（PIN: `123456`）
+
+兩個 UF2 都是 macOS USB MSC drag-drop，所以 `scripts/flash_meshtastic_dfu.sh` 的 `os.fsync() + diskutil eject` 機制兩個都吃得起來（直接 cp 也行，但偶爾會被 macOS write cache 卡住）。
+
 ## 怎麼從零再 build + 燒（建議流程）
 
 ```bash
