@@ -73,9 +73,11 @@ extern "C" {
 #define PIN_SPI_SCK (0 + 19)
 
 // Battery ADC — carrier wires BAT through divider to P0.04, gated by P0.06.
-// Defining BATTERY_PIN lets Meshtastic report voltage; ADC_MULTIPLIER 4.9
-// matches the divider used by the existing Arduino ble_advertise sketch.
+// ADC_CTRL (P0.06) must be driven HIGH to enable the divider; without it the
+// ADC input floats and reads ~16V. ADC_MULTIPLIER 4.9 matches the 390k/100k
+// divider used by the existing Arduino ble_advertise sketch.
 #define BATTERY_PIN (0 + 4)
+#define ADC_CTRL (0 + 6)
 #define ADC_MULTIPLIER (4.9F)
 #define BATTERY_SENSE_RESOLUTION_BITS 12
 

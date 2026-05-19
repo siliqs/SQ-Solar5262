@@ -18,6 +18,12 @@ const uint32_t g_ADigitalPinMap[] = {
 
 void initVariant()
 {
+    // Enable battery voltage divider. P0.06 gates the 390k/100k divider on the
+    // carrier board; without it the ADC input floats and reads ~16V instead of
+    // the actual battery voltage.
+    pinMode(ADC_CTRL, OUTPUT);
+    digitalWrite(ADC_CTRL, HIGH);
+
     // Force internal pull-ups on the I2C lines.
     // Without external pull-ups + no slave attached, the nRF52 TWIM peripheral
     // hangs TwoWire::endTransmission() on Meshtastic's periodic battery-gauge
