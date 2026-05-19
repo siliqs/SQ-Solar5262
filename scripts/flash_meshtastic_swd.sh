@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
-# Flash the Meshtastic ht_n5262m build to the board over SWD via DAPLink.
-# Uses `program ... verify` (no mass_erase), so the Adafruit bootloader and
-# S140 SoftDevice in the protected region are left untouched. To wipe the
-# bootloader and recover Arduino, run ../25_HT5262M_test/scripts/restore_bootloader.sh.
+# DEPRECATED — prefer ./scripts/flash_meshtastic_dfu.sh.
+#
+# This SWD path does NOT update the Adafruit bootloader settings page at
+# 0xFF000, so the Heltec bootloader can mark the app "invalid" and stay in
+# DFU mode forever. Verify succeeds, but on reset the chip never reaches
+# Reset_Handler (verified 2026-05-19, see README "Bring-up history").
+#
+# Only useful when you genuinely want SWD-only flashing without touching the
+# bootloader settings page (e.g., for openocd-driven debugging). For normal
+# bring-up, use the DFU script.
 set -euo pipefail
+echo "WARNING: SWD flash path is deprecated — see README. Continuing anyway." >&2
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HEX="$(ls -t "$REPO_ROOT"/external/meshtastic-firmware/.pio/build/ht_n5262m/firmware-ht_n5262m-*.hex 2>/dev/null | head -1)"

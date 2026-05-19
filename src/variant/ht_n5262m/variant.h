@@ -32,14 +32,44 @@ extern "C" {
 
 // LED — bare HT-N5262M has no user LED on PCB.
 // Map to an unused GPIO so Meshtastic's LED-blink code is harmless.
-// Carrier-board LED mapping is a follow-up.
-#define PIN_LED1 (32 + 15)  // P1.15 — same slot as Solar; floating on this board
+// NOT P1.15 — that is the carrier's RS485 RX (RO) line, verified by
+// 25_HT5262M_test/src/rs485_loopback_zephyr (20/20 echo @ 9600 baud).
+// Driving LED blinks there would corrupt RS485 receive when the bus is enabled.
+// P1.11 is not used by any verified subsystem on silic_solar_panel_5262M v1.
+#define PIN_LED1 (32 + 11)  // P1.11 — unconnected on carrier
 #define LED_BLUE PIN_LED1
 #define LED_GREEN PIN_LED1
 #define LED_STATE_ON 0
 
-// No buttons wired on the bare module
-// (carrier board has BTN1/BTN2 on USER_KEY net — TODO map after schematic recheck)
+// User button — carrier wires USER_KEY to P1.10 (same slot as Heltec T114).
+// Active-LOW with internal pull-up handled by Meshtastic's InputBroker.
+#define PIN_BUTTON1 (32 + 10)
+
+// TFT (ST7789, 1.14" 240×135) — pinout matches Heltec T114 exactly.
+// Two P-MOSFET enables (active LOW): VTFT_CTRL = panel VDD, VTFT_LEDA = backlight.
+// SPI1 carries TFT traffic (SX1262 owns SPI0). MISO/BUSY unused (single-direction).
+// Verified by 25_HT5262M_test/src/tft_test_zephyr (RGB+W+K colour cycle passed).
+#define USE_ST7789
+#define ST7789_NSS    (0 + 11)   // P0.11 (CS)
+#define ST7789_RS     (0 + 12)   // P0.12 (DC)
+#define ST7789_SDA    (32 + 9)   // P1.09 (MOSI)
+#define ST7789_SCK    (32 + 8)   // P1.08
+#define ST7789_RESET  (0 + 2)    // P0.02
+#define ST7789_MISO   -1
+#define ST7789_BUSY   -1
+#define VTFT_CTRL     (0 + 3)    // P0.03 — panel VDD enable (LOW = ON via Q2 AO3401A P-FET)
+#define VTFT_LEDA     (0 + 15)   // P0.15 — backlight enable (LOW = ON via Q1 AO3401A P-FET)
+#define TFT_BACKLIGHT_ON LOW
+#define ST7789_SPI_HOST SPI1_HOST
+
+#define TFT_HEIGHT 135
+#define TFT_WIDTH 240
+#define TFT_OFFSET_X 0
+#define TFT_OFFSET_Y 0
+
+#define PIN_SPI1_MISO ST7789_MISO
+#define PIN_SPI1_MOSI ST7789_SDA
+#define PIN_SPI1_SCK  ST7789_SCK
 
 // Adafruit nRF52 core's Uart.cpp instantiates Serial1/Serial2 unconditionally,
 // so we must define both pin pairs even though neither bus is wired here.
@@ -48,14 +78,16 @@ extern "C" {
 #define PIN_SERIAL2_RX (-1)
 #define PIN_SERIAL2_TX (-1)
 
-// I2C — carrier has a sensor header on P0.27 SDA / P0.26 SCL.
-// Internal pull-ups are enabled in variant.cpp::initVariant() so the bus has
-// a defined state when no device is attached. Without pull-ups, Meshtastic's
-// periodic battery-gauge probe hung TwoWire::endTransmission() (nRF52 TWIM
-// stuck-SCL errata when SDA/SCL float).
+// I2C — carrier's sensor bus is on P1.00 SDA / P1.01 SCL with external 5.1k
+// pull-ups to 3V3 (R30/R31). Verified end-to-end by
+// 25_HT5262M_test/src/i2c_hdc1080_zephyr reading HDC1080 T=27.3°C / H=90.8% RH.
+// (Earlier bring-up of this variant used P0.27/P0.26 — that was wrong:
+//  P0.27 is the carrier's DWM3000 MISO line, and P0.26 had no pull-up,
+//  so the bus floated and Meshtastic's max17048 probe hung
+//  TwoWire::endTransmission() via the nRF52 TWIM stuck-SCL errata.)
 #define WIRE_INTERFACES_COUNT 1
-#define PIN_WIRE_SDA (0 + 27)
-#define PIN_WIRE_SCL (0 + 26)
+#define PIN_WIRE_SDA (32 + 0)
+#define PIN_WIRE_SCL (32 + 1)
 
 // SX1262 — identical to heltec_mesh_solar
 #define USE_SX1262
@@ -73,11 +105,16 @@ extern "C" {
 #define PIN_SPI_SCK (0 + 19)
 
 // Battery ADC — carrier wires BAT through divider to P0.04, gated by P0.06.
-// ADC_CTRL (P0.06) must be driven HIGH to enable the divider; without it the
-// ADC input floats and reads ~16V. ADC_MULTIPLIER 4.9 matches the 390k/100k
-// divider used by the existing Arduino ble_advertise sketch.
+// ADC_CTRL/ADC_CTRL_ENABLED let Meshtastic's battery_adcEnable() (Power.cpp)
+// drive the FET HIGH just before each ADC read and LOW after — saves the
+// ~9 µA divider current the rest of the time. Earlier attempt (commit
+// 7e2958f) drove it HIGH in initVariant(); Meshtastic resets the PIN_CNF
+// later during board init so that approach lost the drive and the ADC kept
+// reading ~16 V. Switching to the macro convention gives voltage 4.228 V
+// (verified 2026-05-19 via `meshtastic --info`).
 #define BATTERY_PIN (0 + 4)
 #define ADC_CTRL (0 + 6)
+#define ADC_CTRL_ENABLED HIGH
 #define ADC_MULTIPLIER (4.9F)
 #define BATTERY_SENSE_RESOLUTION_BITS 12
 

@@ -18,18 +18,10 @@ const uint32_t g_ADigitalPinMap[] = {
 
 void initVariant()
 {
-    // Enable battery voltage divider. P0.06 gates the 390k/100k divider on the
-    // carrier board; without it the ADC input floats and reads ~16V instead of
-    // the actual battery voltage.
-    pinMode(ADC_CTRL, OUTPUT);
-    digitalWrite(ADC_CTRL, HIGH);
-
-    // Force internal pull-ups on the I2C lines.
-    // Without external pull-ups + no slave attached, the nRF52 TWIM peripheral
-    // hangs TwoWire::endTransmission() on Meshtastic's periodic battery-gauge
-    // probe. ~13 kOhm internal pull-ups give the bus a defined high state.
-    pinMode(PIN_WIRE_SDA, INPUT_PULLUP);
-    pinMode(PIN_WIRE_SCL, INPUT_PULLUP);
+    // Battery ADC gate (P0.06) is now handled via the ADC_CTRL macro in
+    // variant.h — Meshtastic's battery_adcEnable() (Power.cpp) drives it HIGH
+    // around each ADC read. I2C bus on P1.00/P1.01 has external 5.1k pull-ups
+    // (R30/R31) so no internal pull-up is needed either.
 }
 
 void variant_shutdown() {}

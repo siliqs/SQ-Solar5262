@@ -16,3 +16,9 @@ external/meshtastic-firmware/
 .pioenvs/
 .piolibdeps/
 
+# Local agent / IDE metadata
+.claude/
+
+# Loose screenshots in repo root (move to assets/ if you want them tracked)
+/截圖 *.png
+
