@@ -1,4 +1,13 @@
-# Meshtastic on HT-N5262M
+# SQ-Solar5262
+
+**Meshtastic®-compatible firmware port for Heltec HT-N5262M on the Siliqs `silic_solar_panel_5262M` carrier board.**
+
+- **Hardware**: Heltec HT-N5262M module (nRF52840 + SX1262 + TCXO) on Siliqs `silic_solar_panel_5262M` v1 carrier (TFT + GNSS header + RS485 + DWM3000 + I2C sensor header)
+- **Firmware base**: upstream [meshtastic/firmware](https://github.com/meshtastic/firmware) (GPL v3)
+- **What's in this repo**: PlatformIO variant overlay (`src/variant/ht_n5262m/`), board JSON (`src/boards/ht_n5262m.json`), DAPLink → UF2 flash tooling, bring-up documentation
+- **Sibling fork**: [siliqs/SQ-Mesh](https://github.com/siliqs/SQ-Mesh) — for the SQC485I-v2 (ESP32-C3 + SX1262) industrial node
+
+[![Releases](https://img.shields.io/github/v/release/siliqs/SQ-Solar5262?include_prereleases)](https://github.com/siliqs/SQ-Solar5262/releases) prebuilt `.uf2` for drag-drop install (Heltec UF2 bootloader).
 
 > Originated from `25_HT5262M_test/study/meshtastic/` (separated 2026-05-15). Cross-references prefixed `../../` were rewritten as absolute URLs into the `25_HT5262M_test` repo — those upstream files were untracked at extraction time and may 404 until they're committed there.
 
@@ -132,8 +141,18 @@ meshtastic --port /dev/cu.usbmodem???? --info
 
 ## 待辦
 
-## 待辦
-
-詳見 [docs/open_issues.md](docs/open_issues.md)：region 設 TW/AS923、battery ADC 校正、手機 app BLE pairing 實測、LoRa link 對測、開 GNSS/TFT/DWM3000/RS485 周邊。
+詳見 [docs/open_issues.md](docs/open_issues.md)：region 設 TW/AS923、手機 app BLE pairing 實測、LoRa link 對測、TFT 視覺確認、開 GNSS/RS485/DWM3000 周邊。
 
 ⚠️ Region 預設掉到 US 902-928 MHz，**設好 region 之前不要拉天線到戶外發送**。
+
+---
+
+## License
+
+This repository is licensed under [GPL v3](LICENSE), the same as upstream [meshtastic/firmware](https://github.com/meshtastic/firmware/blob/master/LICENSE). Any binary built from this source links against GPL v3 code; redistribution must comply with §5(a) (provide source). Variant pin map, scripts, and documentation here are also GPL v3.
+
+## Trademark notice
+
+*Meshtastic® is a registered trademark of Meshtastic LLC. SQ-Solar5262 is an independent project of Siliqs and is not affiliated with, endorsed by, or sponsored by Meshtastic LLC. SQ-Solar5262 is a derivative of the open-source Meshtastic firmware, redistributed under GNU GPL v3.*
+
+See [`docs/branding_strategy`](https://github.com/siliqs/SQ-Mesh#branding-strategy) (sibling repo) for the full naming / trademark / M-PWRD logo policy that applies across Siliqs's Meshtastic-compatible product line.
