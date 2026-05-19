@@ -104,25 +104,22 @@ Release 頁面有**兩支 UF2**，順序很重要：
 ## 怎麼從零再 build + 燒（建議流程）
 
 ```bash
-# 1. clone 上游 (一次性, gitignore 掉)
-mkdir -p external && cd external && \
-  git clone --depth 1 --recursive https://github.com/meshtastic/firmware.git meshtastic-firmware && \
-  cd ..
+# 1. 一行 setup：clone 上游 + symlink variant + 套 patches/
+./scripts/setup.sh
 
-# 2. symlink 我們的 variant 與 board JSON 進 meshtastic clone
-ln -sfn "$PWD/src/variant/ht_n5262m" external/meshtastic-firmware/variants/nrf52840/ht_n5262m
-ln -sfn "$PWD/src/boards/ht_n5262m.json" external/meshtastic-firmware/boards/ht_n5262m.json
-
-# 3. build
+# 2. build
 (cd external/meshtastic-firmware && pio run -e ht_n5262m)
 
-# 4. 燒（DAPLink 接好 → 自動進 UF2 bootloader → drag-drop UF2）
+# 3. 燒（DAPLink 接好 → 自動進 UF2 bootloader → drag-drop UF2）
 ./scripts/flash_meshtastic_dfu.sh
 
-# 5. 驗
+# 4. 驗
 meshtastic --port /dev/cu.usbmodem???? --info
 # 或：./scripts/monitor.sh /dev/cu.usbmodem????
 ```
+
+`scripts/setup.sh` 是 idempotent 的 — pull 完新 commits 或 `patches/` 新增 patch 之後直接再跑一次即可。  
+`external/meshtastic-firmware/` 永遠 gitignored；上游修改一律走 `patches/`，見 [patches/README.md](patches/README.md)。
 
 **首次燒（或 bootloader 被弄壞）**：先跑一次 `../25_HT5262M_test/scripts/restore_bootloader.sh`（mass_erase + 重燒 Heltec BL + S140），再回來跑步驟 4。
 

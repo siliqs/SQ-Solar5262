@@ -1,0 +1,22 @@
+diff --git a/src/mesh/NodeDB.cpp b/src/mesh/NodeDB.cpp
+index 8660aef..d7925bc 100644
+--- a/src/mesh/NodeDB.cpp
++++ b/src/mesh/NodeDB.cpp
+@@ -90,7 +90,7 @@ void variantDefaultConfig() {}
+ void variantDefaultModuleConfig() __attribute__((weak));
+ void variantDefaultModuleConfig() {}
+ 
+-#ifdef HELTEC_MESH_NODE_T114
++#if defined(HELTEC_MESH_NODE_T114) || defined(HT_N5262M)
+ 
+ uint32_t read8(uint8_t bits, uint8_t dummy, uint8_t cs, uint8_t sck, uint8_t mosi, uint8_t dc, uint8_t rst)
+ {
+@@ -917,7 +917,7 @@ void NodeDB::installDefaultConfig(bool preserveKey = false)
+     defined(HX8357_CS) || defined(USE_ST7789) || defined(ILI9488_CS) || defined(ST7796_CS) || defined(USE_SPISSD1306) ||         \
+     defined(USE_ST7796) || defined(HACKADAY_COMMUNICATOR)
+     bool hasScreen = true;
+-#ifdef HELTEC_MESH_NODE_T114
++#if defined(HELTEC_MESH_NODE_T114) || defined(HT_N5262M)
+     uint32_t st7789_id = get_st7789_id(ST7789_NSS, ST7789_SCK, ST7789_SDA, ST7789_RS, ST7789_RESET);
+     if (st7789_id == 0xFFFFFF) {
+         hasScreen = false;
